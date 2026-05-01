@@ -1,0 +1,200 @@
+/* Functor design tokens — shared across all mockups */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Geist+Mono:wght@400&display=swap');
+
+:root {
+  --bg-primary:   oklch(0.985 0.006 85);
+  --bg-surface:   oklch(0.965 0.01 85);
+  --bg-elevated:  oklch(0.945 0.012 85);
+  --bg-inset:     oklch(0.955 0.008 85);
+  --bg-overlay:   oklch(0.995 0.003 85);
+
+  --text-primary:   oklch(0.22 0.015 300);
+  --text-secondary: oklch(0.48 0.01 280);
+  --text-tertiary:  oklch(0.65 0.008 280);
+
+  --accent:         oklch(0.55 0.22 265);
+  --accent-hover:   oklch(0.48 0.22 265);
+  --accent-subtle:  oklch(0.55 0.22 265 / 0.08);
+  --accent-surface: oklch(0.55 0.22 265 / 0.05);
+
+  --success:        oklch(0.65 0.18 155);
+  --success-subtle: oklch(0.65 0.18 155 / 0.1);
+  --warning:        oklch(0.75 0.16 80);
+  --warning-subtle: oklch(0.75 0.16 80 / 0.1);
+  --error:          oklch(0.58 0.2 25);
+  --error-subtle:   oklch(0.58 0.2 25 / 0.1);
+
+  --border:        oklch(0.92 0.008 85);
+  --border-active: oklch(0.86 0.01 85);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.04);
+  --shadow-md: 0 1px 3px oklch(0 0 0 / 0.04), 0 8px 32px oklch(0 0 0 / 0.06);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter Tight', -apple-system, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+.label-uppercase {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.mono { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 15px; }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+button.primary {
+  background: var(--accent);
+  color: white;
+}
+button.primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+button.secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+button.secondary:hover { background: var(--bg-elevated); border-color: var(--border-active); }
+button.ghost {
+  background: transparent;
+  color: var(--accent);
+}
+
+/* App shell — sidebar + main */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+.sidebar {
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  padding: var(--space-xl) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0 var(--space-sm);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+.brand-dot {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+}
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.nav-item.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+.nav-item i { font-size: 16px; }
+.user-chip {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.user-chip .avatar {
+  width: 24px; height: 24px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--accent), oklch(0.6 0.2 320));
+}
+
+/* Brand logo container — replaces generic icon for connector tiles */
+.brand-logo {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.brand-logo img {
+  width: 22px; height: 22px;
+  object-fit: contain;
+  display: block;
+}
+.brand-logo.lg { width: 56px; height: 56px; border-radius: 12px; }
+.brand-logo.lg img { width: 32px; height: 32px; }
+
+.main {
+  padding: var(--space-3xl);
+  max-width: 1100px;
+}
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-3xl);
+  gap: var(--space-xl);
+}
+.page-head h1 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: var(--space-sm);
+}
+.page-head p {
+  color: var(--text-secondary);
+  max-width: 56ch;
+  font-size: 16px;
+}

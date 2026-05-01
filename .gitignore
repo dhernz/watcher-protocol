@@ -1,1 +1,6 @@
 node_modules/
+.gstack/
+.env
+.env.local
+fires.jsonl
+bun.lockb

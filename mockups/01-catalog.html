@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watcher · Catalog</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="_tokens.css">
+<style>
+  .category { margin-bottom: var(--space-3xl); }
+  .category-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-lg);
+  }
+  .tile {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    transition: border-color var(--duration-normal) var(--ease-out),
+                box-shadow var(--duration-normal) var(--ease-out),
+                transform var(--duration-normal) var(--ease-out);
+    cursor: pointer;
+    min-height: 132px;
+  }
+  .tile:hover {
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+  .tile.featured {
+    border-color: var(--accent-subtle);
+    box-shadow: 0 0 0 1px var(--accent-subtle), var(--shadow-sm);
+  }
+  .tile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+  }
+  .tile h3 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .tile-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .dot { width: 6px; height: 6px; border-radius: var(--radius-pill); display: inline-block; }
+  .dot.on  { background: var(--success); box-shadow: 0 0 0 3px var(--success-subtle); }
+  .dot.off { background: var(--border-active); }
+  .tile-foot {
+    margin-top: auto;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .hero-card {
+    background: linear-gradient(135deg, var(--accent-surface), oklch(0.97 0.02 85));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xl);
+  }
+  .hero-card .copy { max-width: 56ch; }
+  .hero-card h2 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-sm);
+  }
+  .hero-card p { color: var(--text-secondary); }
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .flow-steps .step {
+    padding: 6px 12px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    white-space: nowrap;
+  }
+  .flow-steps .arrow { color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      Watcher
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="05-agents.html"><i class="ph ph-robot"></i> Agents <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">1</span></a>
+      <a class="nav-item active" href="01-catalog.html"><i class="ph ph-radio"></i> Catalog</a>
+      <a class="nav-item" href="03-my-watchers.html"><i class="ph ph-binoculars"></i> My watchers <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">3</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-pulse"></i> Activity</a>
+      <a class="nav-item" href="#"><i class="ph ph-gear-six"></i> Settings</a>
+    </nav>
+    <div class="user-chip">
+      <span class="avatar"></span>
+      <div>
+        <div style="color:var(--text-primary);font-weight:500">Carla</div>
+        <div style="font-size:12px">carla@example.com</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>What do you want to watch?</h1>
+        <p>Pick a signal source. We listen for changes in real time, then wake up your agent so it can act before you'd even open your laptop.</p>
+      </div>
+      <a href="01-catalog.html" style="text-decoration:none"><button class="primary"><i class="ph ph-plus"></i>&nbsp; Add watcher</button></a>
+    </div>
+
+    <div class="hero-card">
+      <div class="copy">
+        <h2>Connect an agent. Add watchers. Automate your tasks.</h2>
+        <p>Watchers are the eyes for your agent. They listen for changes in real time and wake the agent to act before you'd open your laptop.</p>
+      </div>
+      <div class="flow-steps">
+        <span class="step"><i class="ph ph-robot"></i> Connect agent</span>
+        <span class="arrow"><i class="ph ph-arrow-right"></i></span>
+        <span class="step"><i class="ph ph-radio"></i> Add watcher</span>
+        <span class="arrow"><i class="ph ph-arrow-right"></i></span>
+        <span class="step"><i class="ph ph-lightning"></i> Automate</span>
+      </div>
+    </div>
+
+    <section class="category">
+      <div class="category-head">
+        <span class="label-uppercase" style="color:var(--accent)">★ Recommended</span>
+        <span style="font-size:13px;color:var(--text-tertiary)">connected and ready</span>
+      </div>
+      <div class="grid">
+        <a href="02-configure-viator.html" class="tile featured" style="text-decoration:none;color:inherit">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/tripadvisor/00AF87"></div>
+            <span class="pill"><i class="ph ph-star-fill" style="font-size:10px"></i> Recommended</span>
+          </div>
+          <h3>Viator</h3>
+          <div class="tile-status"><span class="dot on"></span> Listening · 1 active watcher</div>
+          <div class="tile-foot">Tour availability, price drops, ratings</div>
+        </a>
+        <a href="02b-configure-pagerduty.html" class="tile featured" style="text-decoration:none;color:inherit">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/pagerduty/06AC38"></div>
+            <span class="pill"><i class="ph ph-star-fill" style="font-size:10px"></i> Recommended</span>
+          </div>
+          <h3>PagerDuty</h3>
+          <div class="tile-status"><span class="dot on"></span> Listening · 1 active watcher</div>
+          <div class="tile-foot">Incident lifecycle webhooks</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="category">
+      <div class="category-head">
+        <span class="label-uppercase">Productivity</span>
+        <span style="font-size:13px;color:var(--text-tertiary)">4 sources</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/gmail"></div>
+          </div>
+          <h3>Gmail</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with Google</div>
+          <div class="tile-foot">New emails matching filters</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/googlecalendar"></div>
+          </div>
+          <h3>Google Calendar</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with Google</div>
+          <div class="tile-foot">Events created, changed, started</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/notion"></div>
+          </div>
+          <h3>Notion</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect workspace</div>
+          <div class="tile-foot">Page edits, database changes, mentions</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/github"></div>
+          </div>
+          <h3>GitHub</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with GitHub</div>
+          <div class="tile-foot">PRs, issues, releases, deploys</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="category">
+      <div class="category-head">
+        <span class="label-uppercase">Travel</span>
+        <span style="font-size:13px;color:var(--text-tertiary)">3 sources</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/skyscanner/0770E3"></div>
+          </div>
+          <h3>Skyscanner</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with API key</div>
+          <div class="tile-foot">Flight prices, route alerts</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/airbnb/FF5A5F"></div>
+          </div>
+          <h3>Airbnb</h3>
+          <div class="tile-status"><span class="dot off"></span> Paste search URL</div>
+          <div class="tile-foot">Listing availability, price drops</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/bookingdotcom/003B95"></div>
+          </div>
+          <h3>Booking.com</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with API key</div>
+          <div class="tile-foot">Hotel availability, rate changes</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="category">
+      <div class="category-head">
+        <span class="label-uppercase">Ops &amp; reliability</span>
+        <span style="font-size:13px;color:var(--text-tertiary)">3 sources</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/datadog/632CA6"></div>
+          </div>
+          <h3>Datadog</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with API key</div>
+          <div class="tile-foot">Metric alerts, log patterns</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/sentry/362D59"></div>
+          </div>
+          <h3>Sentry</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect project</div>
+          <div class="tile-foot">Error spikes, regression detection</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/grafana/F46800"></div>
+          </div>
+          <h3>Grafana</h3>
+          <div class="tile-status"><span class="dot off"></span> Connect with API key</div>
+          <div class="tile-foot">Alert state changes, threshold breaches</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="category">
+      <div class="category-head">
+        <span class="label-uppercase">Web &amp; custom</span>
+        <span style="font-size:13px;color:var(--text-tertiary)">4 sources</span>
+      </div>
+      <div class="grid">
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo"><img alt="" src="https://cdn.simpleicons.org/rss/F26522"></div>
+          </div>
+          <h3>RSS feed</h3>
+          <div class="tile-status"><span class="dot off"></span> Paste a feed URL</div>
+          <div class="tile-foot">SEC filings, news, blogs, releases</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo" style="background:var(--accent-subtle);border-color:transparent"><i class="ph ph-webhooks-logo" style="font-size:22px;color:var(--accent)"></i></div>
+          </div>
+          <h3>Webhook in</h3>
+          <div class="tile-status"><span class="dot off"></span> Generate endpoint</div>
+          <div class="tile-foot">Anything that can POST</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo" style="background:var(--accent-subtle);border-color:transparent"><i class="ph ph-globe-hemisphere-west" style="font-size:22px;color:var(--accent)"></i></div>
+          </div>
+          <h3>HTTPS endpoint</h3>
+          <div class="tile-status"><span class="dot off"></span> Paste a URL</div>
+          <div class="tile-foot">Poll any JSON, watch the diff</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <div class="brand-logo" style="background:var(--accent-subtle);border-color:transparent"><i class="ph ph-file-code" style="font-size:22px;color:var(--accent)"></i></div>
+          </div>
+          <h3>OpenAPI spec</h3>
+          <div class="tile-status"><span class="dot off"></span> Upload spec</div>
+          <div class="tile-foot">Auto-generate connectors</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

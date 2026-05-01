@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watcher · Set up PagerDuty</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="_tokens.css">
+<style>
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-lg);
+  }
+  .breadcrumb .crumb { padding: 4px 10px; border-radius: var(--radius-pill); }
+  .breadcrumb .crumb.active { background: var(--accent-subtle); color: var(--accent); font-weight: 500; }
+
+  .source-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-xl);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2xl);
+  }
+  .source-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .source-header .status {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 2px; font-size: 13px; color: var(--text-secondary);
+  }
+  .dot { width: 6px; height: 6px; border-radius: var(--radius-pill); display: inline-block; }
+  .dot.on { background: var(--success); box-shadow: 0 0 0 3px var(--success-subtle); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+    max-width: 720px;
+  }
+  .form {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .nl-prompt {
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .nl-prompt label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .nl-prompt textarea {
+    font: inherit;
+    font-size: 17px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+    padding: 0;
+    outline: none;
+    width: 100%;
+    field-sizing: content;
+  }
+  .nl-prompt .ai-hint {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--accent);
+  }
+
+  .compact-form {
+    display: flex; flex-direction: column; gap: var(--space-md);
+  }
+  .compact-form .compact-field {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: var(--space-md);
+    align-items: center;
+  }
+  .compact-form .compact-field .lbl {
+    font-size: 13px; color: var(--text-secondary); font-weight: 500;
+  }
+  .compact-form .compact-field input,
+  .compact-form .compact-field select {
+    font: inherit; font-size: 15px;
+    padding: 10px 14px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    width: 100%;
+  }
+  .compact-form .compact-field input:focus,
+  .compact-form .compact-field select:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle);
+  }
+
+  .advanced-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 0;
+    border: none;
+    background: transparent;
+    align-self: flex-start;
+  }
+  .advanced-toggle:hover { color: var(--accent); }
+
+  .preview {
+    position: sticky;
+    top: var(--space-2xl);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    display: flex; flex-direction: column; gap: var(--space-lg);
+  }
+  .preview h4 {
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-tertiary);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .preview .live-pulse {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--success);
+    text-transform: none; letter-spacing: 0;
+  }
+  .match-card {
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .match-card.matched {
+    border-color: var(--success);
+    background: var(--success-subtle);
+  }
+  .match-card .name { font-weight: 500; font-size: 14px; }
+  .match-card .meta {
+    font-size: 12px; color: var(--text-secondary);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .match-card .meta .who {
+    font-family: 'Geist Mono', monospace; color: var(--accent);
+  }
+
+  .footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: var(--space-2xl);
+  }
+  .footer .left { font-size: 13px; color: var(--text-secondary); }
+
+  .conditions-list {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .condition {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+  }
+  .condition i { color: var(--success); font-size: 14px; }
+
+  /* Connect card */
+  .connect-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+  }
+  .connect-row {
+    display: flex; gap: var(--space-lg); align-items: flex-start;
+  }
+  .connect-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .connect-title {
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .connect-sub {
+    font-size: 13px; color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+  .connect-controls {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .connect-controls input {
+    font: inherit; font-size: 14px;
+    padding: 10px 14px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    flex: 1;
+  }
+  .connect-controls input:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle);
+  }
+  .connect-alts {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  /* Step divider */
+  .step-divider {
+    position: relative;
+    text-align: left;
+    margin: var(--space-2xl) 0 var(--space-lg) 0;
+  }
+  .step-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0; height: 1px;
+    background: var(--border);
+  }
+  .step-divider-label {
+    position: relative;
+    background: var(--bg-primary);
+    padding-right: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  /* When step 2 is gated */
+  .gated {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      Watcher
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="05-agents.html"><i class="ph ph-robot"></i> Agents <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">1</span></a>
+      <a class="nav-item" href="01-catalog.html"><i class="ph ph-radio"></i> Catalog</a>
+      <a class="nav-item active" href="03-my-watchers.html"><i class="ph ph-binoculars"></i> My watchers</a>
+      <a class="nav-item" href="#"><i class="ph ph-pulse"></i> Activity</a>
+      <a class="nav-item" href="#"><i class="ph ph-gear-six"></i> Settings</a>
+    </nav>
+    <div class="user-chip">
+      <span class="avatar"></span>
+      <div>
+        <div style="color:var(--text-primary);font-weight:500">Priya</div>
+        <div style="font-size:12px">priya@example.com</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="breadcrumb">
+      <span class="crumb active">1. Connect</span>
+      <i class="ph ph-caret-right" style="font-size:11px"></i>
+      <span class="crumb">2. Watch</span>
+      <i class="ph ph-caret-right" style="font-size:11px"></i>
+      <span class="crumb">3. Connect agent</span>
+      <i class="ph ph-caret-right" style="font-size:11px"></i>
+      <span class="crumb">4. Activate</span>
+    </div>
+
+    <div class="page-head">
+      <div>
+        <h1>Set up your PagerDuty watcher</h1>
+        <p>First connect your PagerDuty account, then tell us when to fire.</p>
+      </div>
+    </div>
+
+    <div class="connect-card">
+      <div class="connect-row">
+        <div class="brand-logo lg"><img alt="" src="https://cdn.simpleicons.org/pagerduty/06AC38"></div>
+        <div class="connect-body">
+          <div class="connect-title">Step 1 — Connect PagerDuty</div>
+          <div class="connect-sub">Paste an API key (Account Settings → API Access Keys), or use the hackathon test account.</div>
+          <div class="connect-controls">
+            <input type="password" placeholder="••••••••••••••••••••" value="" style="font-family:'Geist Mono',monospace;font-size:13px">
+            <button class="primary">Connect <i class="ph ph-arrow-right"></i></button>
+          </div>
+          <div class="connect-alts">
+            <button class="ghost" style="font-size:13px;padding:6px 10px"><i class="ph ph-flask"></i> Use hackathon test account</button>
+            <span style="color:var(--text-tertiary);font-size:12px">·</span>
+            <button class="ghost" style="font-size:13px;padding:6px 10px"><i class="ph ph-arrow-square-out"></i> Sign in with PagerDuty (OAuth)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-divider">
+      <span class="step-divider-label">Step 2 — What to watch</span>
+    </div>
+
+    <div class="layout">
+      <div class="form">
+
+        <div class="nl-prompt">
+          <label>What do you want to watch?</label>
+          <textarea>When a PagerDuty incident gets resolved and the fix came from a merged pull request, tip the contributor $5 USDC. Skip if the resolver is on the on-call rotation already.</textarea>
+          <div class="ai-hint">
+            <i class="ph ph-sparkle"></i> AI parsed your request → 4 fields below
+          </div>
+        </div>
+
+        <div class="compact-form">
+          <div class="compact-field">
+            <span class="lbl">Service</span>
+            <select>
+              <option>All services (7)</option>
+              <option>payments-api</option>
+              <option>auth-service</option>
+              <option>frontend</option>
+            </select>
+          </div>
+          <div class="compact-field">
+            <span class="lbl">Fires when</span>
+            <div class="conditions-list">
+              <div class="condition"><i class="ph ph-check"></i> Incident is resolved</div>
+              <div class="condition"><i class="ph ph-check"></i> Resolution is linked to a merged GitHub PR</div>
+              <div class="condition"><i class="ph ph-check"></i> PR author is NOT on the on-call rotation</div>
+            </div>
+          </div>
+          <div class="compact-field">
+            <span class="lbl">Tip amount</span>
+            <input type="text" value="$5 USDC" style="max-width:160px">
+          </div>
+          <div class="compact-field">
+            <span class="lbl">Recipient</span>
+            <input type="text" value="Resolved from PR author's wallet (GitHub profile → ENS or 0x address)">
+          </div>
+        </div>
+
+        <button class="advanced-toggle">
+          <i class="ph ph-caret-down" style="font-size:11px"></i> Advanced (severity filter, max tips/week, fallback)
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <div class="left">
+        <i class="ph ph-clock-counter-clockwise"></i> &nbsp;Watchers stay in draft until you connect an agent.
+      </div>
+      <div style="display:flex;gap:var(--space-md)">
+        <a href="01-catalog.html" style="text-decoration:none"><button class="secondary"><i class="ph ph-arrow-left"></i> Back</button></a>
+        <a href="04-connect-agent.html" style="text-decoration:none"><button class="primary">Next: connect agent <i class="ph ph-arrow-right"></i></button></a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

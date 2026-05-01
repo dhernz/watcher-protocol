@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watcher · Carla's trip planner</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="_tokens.css">
+<style>
+  .crumbs {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-tertiary);
+    margin-bottom: var(--space-md);
+  }
+  .crumbs a { color: var(--text-secondary); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent); }
+
+  .agent-header {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: var(--space-xl);
+    align-items: center;
+    padding: var(--space-2xl);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2xl);
+  }
+  .agent-header .avatar {
+    width: 72px; height: 72px;
+    border-radius: 18px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, #5b6fff, #8b5cf6);
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .agent-header h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .agent-header .meta {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .agent-header .meta .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .agent-header .meta .pill img { width: 11px; height: 11px; }
+  .agent-header .actions { display: flex; gap: 8px; }
+  .agent-header .actions button { font-size: 13px; padding: 8px 14px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+  .stat-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+  }
+  .stat-card .lbl {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-tertiary);
+  }
+  .stat-card .num {
+    font-size: 26px; font-weight: 600; letter-spacing: -0.02em;
+    margin-top: 4px;
+  }
+  .stat-card.accent .num { color: var(--accent); }
+  .stat-card .delta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  .tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-xl);
+  }
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .tab .count {
+    margin-left: 6px; padding: 1px 7px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .timeline { display: flex; flex-direction: column; gap: var(--space-md); }
+
+  .event {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-lg);
+    align-items: flex-start;
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-normal) var(--ease-out);
+  }
+  .event:hover { border-color: var(--border-active); }
+  .event .icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: grid; place-items: center;
+  }
+  .event .icon img { width: 20px; height: 20px; }
+  .event.success .icon { background: var(--success-subtle); color: var(--success); }
+  .event.warn .icon { background: var(--warning-subtle); color: oklch(0.55 0.18 60); }
+  .event .title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .event .reasoning {
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-inset);
+    border-left: 2px solid var(--border-active);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    margin: 6px 0;
+    font-style: italic;
+    max-width: 64ch;
+    line-height: 1.5;
+  }
+  .event .chain {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .event .chain .step {
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .event .chain i { font-size: 10px; color: var(--text-tertiary); }
+  .event .right {
+    text-align: right;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 130px;
+  }
+  .event .right .when { color: var(--text-tertiary); }
+  .event .right .outcome { font-weight: 500; }
+  .event.success .right .outcome { color: var(--success); }
+  .event.warn .right .outcome { color: oklch(0.55 0.18 60); }
+  .event .right .id {
+    font-family: 'Geist Mono', monospace; font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .filter-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--space-md);
+  }
+  .filter-row .filters { display: flex; gap: 6px; }
+  .filter-row .chip {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: var(--bg-overlay);
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .filter-row .chip.on {
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border-color: var(--accent-subtle);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      Watcher
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" href="05-agents.html"><i class="ph ph-robot"></i> Agents <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">1</span></a>
+      <a class="nav-item" href="01-catalog.html"><i class="ph ph-radio"></i> Catalog</a>
+      <a class="nav-item" href="03-my-watchers.html"><i class="ph ph-binoculars"></i> My watchers <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">3</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-pulse"></i> Activity</a>
+      <a class="nav-item" href="#"><i class="ph ph-gear-six"></i> Settings</a>
+    </nav>
+    <div class="user-chip">
+      <span class="avatar"></span>
+      <div>
+        <div style="color:var(--text-primary);font-weight:500">Carla</div>
+        <div style="font-size:12px">carla@example.com</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="crumbs">
+      <a href="05-agents.html">Agents</a>
+      <i class="ph ph-caret-right" style="font-size:11px"></i>
+      <span style="color:var(--text-secondary)">Carla's trip planner</span>
+    </div>
+
+    <div class="agent-header">
+      <div class="avatar"><i class="ph ph-robot" style="font-size:32px;color:white"></i></div>
+      <div>
+        <h1>Carla's trip planner</h1>
+        <div style="color:var(--text-secondary);font-size:14px">Books travel autonomously when watchers fire. Cancellable bookings only, $400 spend cap per fire.</div>
+        <div class="meta">
+          <span class="pill"><i class="ph ph-cube" style="font-size:11px;color:var(--accent)"></i> Virtuals EconomyOS</span>
+          <span class="pill"><img src="https://cdn.simpleicons.org/anthropic/000000"> Claude Sonnet 4.6</span>
+          <span class="pill"><i class="ph ph-credit-card" style="font-size:11px"></i> card •••• 4729</span>
+          <span class="pill"><i class="ph ph-wallet" style="font-size:11px"></i> 0x4a…3f</span>
+          <span class="pill"><i class="ph ph-envelope-simple" style="font-size:11px"></i> trip-planner@watcher.agent</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="secondary"><i class="ph ph-pause"></i> Pause</button>
+        <button class="secondary"><i class="ph ph-pencil-simple"></i> Edit</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card accent">
+        <div class="lbl">Watchers attached</div>
+        <div class="num">3</div>
+        <div class="delta">Viator · Skyscanner · Booking.com</div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">Fires this week</div>
+        <div class="num">7</div>
+        <div class="delta">↑ 4 vs last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">Spent this week</div>
+        <div class="num">$316</div>
+        <div class="delta">via EconomyOS card</div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">Avg act time</div>
+        <div class="num">2.3s</div>
+        <div class="delta">fire → action confirmed</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <span class="tab active">What it did <span class="count">7</span></span>
+      <span class="tab">Watchers attached <span class="count">3</span></span>
+      <span class="tab">Settings</span>
+    </div>
+
+    <div class="filter-row">
+      <div class="filters">
+        <span class="chip on">All</span>
+        <span class="chip">Booked (5)</span>
+        <span class="chip">Skipped (1)</span>
+        <span class="chip">Failed (1)</span>
+      </div>
+      <span style="font-size:13px;color:var(--text-secondary)"><i class="ph ph-clock"></i> Last 7 days</span>
+    </div>
+
+    <div class="timeline">
+
+      <div class="event success">
+        <div class="icon"><img src="https://cdn.simpleicons.org/tripadvisor/00AF87"></div>
+        <div>
+          <div class="title">Booked Sintra Day Tour for Aug 14 · 4 tickets · $79/person</div>
+          <div class="reasoning">"Tour matched all filters. 4.6★ exceeds 4.0 threshold. $79/person under $80 cap. Aug 14 is a Friday — Carla's calendar shows no events. Cancellable up to 24h before. Confidence: high. Booking now."</div>
+          <div class="chain">
+            <span class="step">Viator · tour.match</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">decided in 1.4s</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">paid $316 via EconomyOS card</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">confirmation in inbox</span>
+          </div>
+        </div>
+        <div class="right">
+          <span class="outcome">+$316.00 booked</span>
+          <span class="when">Yesterday 14:22</span>
+          <span class="id">fire_e3a1…77</span>
+        </div>
+      </div>
+
+      <div class="event success">
+        <div class="icon"><img src="https://cdn.simpleicons.org/skyscanner/0770E3"></div>
+        <div>
+          <div class="title">Held a JFK→LIS deal at $487 · waiting on Carla's confirmation</div>
+          <div class="reasoning">"Price below $500 cap, but spend amount > $400 per-fire limit. Held the fare for 23 minutes via Skyscanner direct booking. Notified Carla — needs explicit confirm before payment."</div>
+          <div class="chain">
+            <span class="step">Skyscanner · price.drop</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">cap exceeded → held, not booked</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">SMS sent to Carla</span>
+          </div>
+        </div>
+        <div class="right">
+          <span class="outcome">Held · awaiting OK</span>
+          <span class="when">3 days ago</span>
+          <span class="id">fire_b2c8…04</span>
+        </div>
+      </div>
+
+      <div class="event warn">
+        <div class="icon"><i class="ph ph-warning-circle" style="font-size:18px"></i></div>
+        <div>
+          <div class="title">Skipped a Lisbon hotel deal — wrong dates</div>
+          <div class="reasoning">"Booking.com fired on a hotel that matched price and rating but check-in was Aug 11, one day before the family's flight arrives. Skipped. No action taken. Updated watcher filter to require check-in ≥ Aug 12."</div>
+          <div class="chain">
+            <span class="step">Booking.com · price.drop</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">date mismatch</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">no booking · filter tightened</span>
+          </div>
+        </div>
+        <div class="right">
+          <span class="outcome">Skipped</span>
+          <span class="when">4 days ago</span>
+          <span class="id">fire_a9d4…b1</span>
+        </div>
+      </div>
+
+      <div class="event success">
+        <div class="icon"><img src="https://cdn.simpleicons.org/tripadvisor/00AF87"></div>
+        <div>
+          <div class="title">Booked a Lisbon Tile Walking Tour · 2 tickets · $48/person</div>
+          <div class="chain">
+            <span class="step">Viator · tour.match</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">paid $96 via EconomyOS card</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">confirmation in inbox</span>
+          </div>
+        </div>
+        <div class="right">
+          <span class="outcome">+$96.00 booked</span>
+          <span class="when">5 days ago</span>
+          <span class="id">fire_c1e7…2d</span>
+        </div>
+      </div>
+
+      <div class="event success">
+        <div class="icon"><img src="https://cdn.simpleicons.org/tripadvisor/00AF87"></div>
+        <div>
+          <div class="title">Booked a fado evening · 4 tickets · $36/person</div>
+          <div class="chain">
+            <span class="step">Viator · tour.match</span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="step">paid $144 via EconomyOS card</span>
+          </div>
+        </div>
+        <div class="right">
+          <span class="outcome">+$144.00 booked</span>
+          <span class="when">6 days ago</span>
+          <span class="id">fire_5f30…9a</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

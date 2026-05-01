@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watcher · My watchers</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="_tokens.css">
+<style>
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+  .stat {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat .label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .stat .value {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+  .stat .delta { font-size: 13px; color: var(--text-secondary); }
+  .stat.accent .value { color: var(--accent); }
+
+  .section { margin-bottom: var(--space-2xl); }
+  .section h2 {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .section h2 a { font-size: 13px; color: var(--accent); text-decoration: none; letter-spacing: 0; text-transform: none; }
+
+  .row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: var(--space-lg);
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+    transition: border-color var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
+  }
+  .row:hover { border-color: var(--border-active); box-shadow: var(--shadow-sm); }
+  .row .icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-subtle);
+    color: var(--accent);
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+  }
+  .row.warn .icon { background: var(--warning-subtle); color: oklch(0.55 0.18 60); }
+  .row.fire .icon { background: var(--success-subtle); color: var(--success); }
+  .row .body .title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+  .row .body .sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .row .right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .dot { width: 6px; height: 6px; border-radius: var(--radius-pill); display: inline-block; }
+  .dot.on { background: var(--success); box-shadow: 0 0 0 3px var(--success-subtle); animation: pulse 2.4s ease-in-out infinite; }
+  .dot.warn { background: var(--warning); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .menu-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    font-size: 18px;
+  }
+  .menu-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+  .agent-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .agent-pill i { font-size: 11px; color: var(--accent); }
+
+  .empty {
+    background: var(--bg-surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2xl);
+    text-align: center;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      Watcher
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="05-agents.html"><i class="ph ph-robot"></i> Agents <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">1</span></a>
+      <a class="nav-item" href="01-catalog.html"><i class="ph ph-radio"></i> Catalog</a>
+      <a class="nav-item active" href="03-my-watchers.html"><i class="ph ph-binoculars"></i> My watchers <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">3</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-pulse"></i> Activity</a>
+      <a class="nav-item" href="#"><i class="ph ph-gear-six"></i> Settings</a>
+    </nav>
+    <div class="user-chip">
+      <span class="avatar"></span>
+      <div>
+        <div style="color:var(--text-primary);font-weight:500">Carla</div>
+        <div style="font-size:12px">carla@example.com</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>My watchers</h1>
+        <p>Three signals you've asked us to watch. Two agents you've connected. We'll keep an eye out so they don't have to.</p>
+      </div>
+      <a href="01-catalog.html" style="text-decoration:none"><button class="primary"><i class="ph ph-plus"></i>&nbsp; Add watcher</button></a>
+    </div>
+
+    <div class="stats">
+      <div class="stat accent">
+        <span class="label">Active</span>
+        <span class="value">3</span>
+        <span class="delta">listening in real time</span>
+      </div>
+      <div class="stat">
+        <span class="label">Fires this week</span>
+        <span class="value">7</span>
+        <span class="delta">↑ 4 vs last week</span>
+      </div>
+      <div class="stat">
+        <span class="label">Avg latency</span>
+        <span class="value">1.4s</span>
+        <span class="delta">source change → agent</span>
+      </div>
+      <div class="stat">
+        <span class="label">Agent spend, week</span>
+        <span class="value">$316</span>
+        <span class="delta">via EconomyOS virtual card</span>
+      </div>
+    </div>
+
+    <section class="section">
+      <h2>
+        <span>Active <span style="color:var(--text-tertiary);margin-left:6px">3</span></span>
+        <a href="#">Pause all</a>
+      </h2>
+
+      <div class="row">
+        <div class="icon"><img alt="" src="https://cdn.simpleicons.org/tripadvisor/00AF87" style="width:22px;height:22px"></div>
+        <div class="body">
+          <div class="title">
+            Lisbon tours · under $80 / person
+            <span class="dot on" title="listening"></span>
+          </div>
+          <div class="sub">
+            Viator · rating ≥ 4.0 · Aug 12 – 19, 2026
+            &nbsp;<i class="ph ph-arrow-right" style="font-size:11px;color:var(--text-tertiary)"></i>&nbsp;
+            <span class="agent-pill"><i class="ph ph-robot"></i> Carla's trip planner · Virtuals EconomyOS</span>
+          </div>
+        </div>
+        <div class="right">
+          <span><span class="dot on"></span> last poll 4s ago</span>
+          <span style="color:var(--text-tertiary)">12 matches checked</span>
+        </div>
+        <button class="menu-btn"><i class="ph ph-dots-three-vertical"></i></button>
+      </div>
+
+      <div class="row">
+        <div class="icon"><img alt="" src="https://cdn.simpleicons.org/pagerduty/06AC38" style="width:22px;height:22px"></div>
+        <div class="body">
+          <div class="title">
+            Tip the contributor who fixed it
+            <span class="dot on" title="listening"></span>
+          </div>
+          <div class="sub">
+            PagerDuty · incident resolved by a merged PR
+            &nbsp;<i class="ph ph-arrow-right" style="font-size:11px;color:var(--text-tertiary)"></i>&nbsp;
+            <span class="agent-pill"><i class="ph ph-robot"></i> Tipping agent · sends $5 from EconomyOS wallet</span>
+          </div>
+        </div>
+        <div class="right">
+          <span><span class="dot on"></span> webhook live</span>
+          <span style="color:var(--text-tertiary)">last tip 2h ago · ✓ paid</span>
+        </div>
+        <button class="menu-btn"><i class="ph ph-dots-three-vertical"></i></button>
+      </div>
+
+      <div class="row warn">
+        <div class="icon"><img alt="" src="https://cdn.simpleicons.org/gmail/EA4335" style="width:22px;height:22px"></div>
+        <div class="body">
+          <div class="title">
+            New emails from MGMT band
+            <span class="dot warn" title="needs reauth"></span>
+          </div>
+          <div class="sub">
+            Gmail · from: mgmt@bandsintown.com · subject ~ "tour|concert|show"
+            &nbsp;<i class="ph ph-arrow-right" style="font-size:11px;color:var(--text-tertiary)"></i>&nbsp;
+            <span class="agent-pill"><i class="ph ph-bell"></i> notify only</span>
+          </div>
+        </div>
+        <div class="right">
+          <span style="color:oklch(0.55 0.18 60)">⚠ Google token expired</span>
+          <span style="color:var(--text-tertiary)">last poll 7m ago</span>
+        </div>
+        <button class="menu-btn"><i class="ph ph-dots-three-vertical"></i></button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>
+        <span>Recent fires</span>
+        <a href="#">View activity →</a>
+      </h2>
+
+      <div class="row fire">
+        <div class="icon"><i class="ph ph-check"></i></div>
+        <div class="body">
+          <div class="title">Tipped @sasha-dev · resolved INC-2841</div>
+          <div class="sub">
+            2h ago · PagerDuty resolved → linked PR #4127 (sasha-dev) → tipping agent → sent $5 USDC to 0x9a…b3 via EconomyOS wallet
+          </div>
+        </div>
+        <div class="right">
+          <span style="color:var(--success)">✓ $5.00 tipped</span>
+          <span style="color:var(--text-tertiary);font-family:'Geist Mono',monospace;font-size:12px">fire_4f9b…2a</span>
+        </div>
+        <button class="menu-btn"><i class="ph ph-dots-three-vertical"></i></button>
+      </div>
+
+      <div class="row fire">
+        <div class="icon"><i class="ph ph-check"></i></div>
+        <div class="body">
+          <div class="title">Sintra Day Tour · $79 / person · <span style="font-size:12px;color:var(--text-secondary);font-weight:400">paid by agent's own card</span></div>
+          <div class="sub">
+            Yesterday 14:22 · Viator availability → Carla's trip planner → booked 4× Aug 14 → confirmation in inbox
+          </div>
+        </div>
+        <div class="right">
+          <span style="color:var(--success)">✓ $316.00 · EconomyOS card</span>
+          <span style="color:var(--text-tertiary);font-family:'Geist Mono',monospace;font-size:12px">fire_e3a1…77</span>
+        </div>
+        <button class="menu-btn"><i class="ph ph-dots-three-vertical"></i></button>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

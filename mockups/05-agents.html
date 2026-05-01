@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watcher · Agents</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="_tokens.css">
+<style>
+  .agent-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: var(--space-lg);
+    align-items: center;
+    margin-bottom: var(--space-md);
+    transition: border-color var(--duration-normal) var(--ease-out),
+                box-shadow var(--duration-normal) var(--ease-out);
+  }
+  .agent-card:hover { border-color: var(--border-active); box-shadow: var(--shadow-sm); }
+  .agent-card .avatar {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    color: white;
+    font-size: 22px;
+    background: linear-gradient(135deg, #5b6fff, #8b5cf6);
+  }
+  .agent-card .info .name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .agent-card .info .meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .agent-card .info .meta .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .agent-card .info .meta .pill img { width: 11px; height: 11px; }
+  .agent-card .stats {
+    display: flex;
+    gap: var(--space-2xl);
+    text-align: center;
+  }
+  .agent-card .stats .stat .num {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .agent-card .stats .stat .lbl {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .create-section {
+    margin-top: var(--space-2xl);
+  }
+  .create-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-sm);
+  }
+  .create-section .sub {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: var(--space-xl);
+    max-width: 60ch;
+  }
+
+  .creation-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+  }
+  .create-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    cursor: pointer;
+    transition: all var(--duration-normal) var(--ease-out);
+    min-height: 290px;
+  }
+  .create-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
+    transform: translateY(-2px);
+  }
+  .create-card.recommended {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, oklch(0.97 0.02 265 / 0.4), var(--bg-surface));
+  }
+  .create-card .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .create-card .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    display: grid; place-items: center;
+  }
+  .create-card .card-icon img { width: 28px; height: 28px; }
+  .create-card .card-icon i { color: var(--accent); font-size: 24px; }
+  .create-card .pill {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: white;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .create-card h3 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .create-card .desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .create-card .gives {
+    margin-top: auto;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .create-card .gives .row {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .create-card .gives .row i { color: var(--success); font-size: 13px; }
+  .create-card .gives .row .x { color: var(--text-tertiary); }
+  .create-card .gives .row .x i { color: var(--text-tertiary); }
+  .create-card .best {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-style: italic;
+  }
+  .create-card .cta {
+    margin-top: var(--space-sm);
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .one-clicks {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: var(--space-sm);
+  }
+  .one-clicks .one {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .one-clicks .one img { width: 11px; height: 11px; }
+
+  .notify-card {
+    margin-top: var(--space-lg);
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+  .notify-card .left {
+    display: flex; align-items: center; gap: var(--space-md);
+  }
+  .notify-card .left i { color: var(--accent); font-size: 22px; }
+  .notify-card .left .ttl { font-weight: 500; }
+  .notify-card .left .sub { font-size: 13px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      Watcher
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" href="05-agents.html"><i class="ph ph-robot"></i> Agents <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">1</span></a>
+      <a class="nav-item" href="01-catalog.html"><i class="ph ph-radio"></i> Catalog</a>
+      <a class="nav-item" href="03-my-watchers.html"><i class="ph ph-binoculars"></i> My watchers <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">3</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-pulse"></i> Activity</a>
+      <a class="nav-item" href="#"><i class="ph ph-gear-six"></i> Settings</a>
+    </nav>
+    <div class="user-chip">
+      <span class="avatar"></span>
+      <div>
+        <div style="color:var(--text-primary);font-weight:500">Carla</div>
+        <div style="font-size:12px">carla@example.com</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Agents</h1>
+        <p>Agents are the things that act on every fire. Set one up once, attach as many watchers as you want.</p>
+      </div>
+      <a href="07-connect-new-agent.html" style="text-decoration:none"><button class="primary"><i class="ph ph-plus"></i>&nbsp; Connect agent</button></a>
+    </div>
+
+    <!-- Existing agents list -->
+    <a href="06-agent-detail.html" class="agent-card" style="text-decoration:none;color:inherit">
+      <div class="avatar"><i class="ph ph-robot" style="font-size:26px;color:white"></i></div>
+      <div class="info">
+        <div class="name">Carla's trip planner <i class="ph ph-arrow-up-right" style="font-size:13px;color:var(--text-tertiary);margin-left:6px"></i></div>
+        <div class="meta">
+          <span class="pill"><i class="ph ph-cube" style="font-size:11px;color:var(--accent)"></i> Virtuals EconomyOS</span>
+          <span class="pill"><img src="https://cdn.simpleicons.org/anthropic/000000"> Claude Sonnet 4.6</span>
+          <span class="pill"><i class="ph ph-credit-card" style="font-size:11px"></i> card •••• 4729</span>
+          <span class="pill"><i class="ph ph-wallet" style="font-size:11px"></i> 0x4a…3f</span>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="num">3</div>
+          <div class="lbl">watchers</div>
+        </div>
+        <div class="stat">
+          <div class="num">7</div>
+          <div class="lbl">fires this week</div>
+        </div>
+        <div class="stat">
+          <div class="num">$316</div>
+          <div class="lbl">spent</div>
+        </div>
+      </div>
+    </a>
+
+
+  </main>
+</div>
+</body>
+</html>

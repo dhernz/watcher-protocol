@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watcher · Connect a new agent</title>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="_tokens.css">
+<style>
+  .crumbs {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-tertiary);
+    margin-bottom: var(--space-md);
+  }
+  .crumbs a { color: var(--text-secondary); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent); }
+
+  .switcher {
+    display: inline-flex;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 4px;
+    margin-bottom: var(--space-2xl);
+  }
+  .switcher .opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .switcher .opt img { width: 16px; height: 16px; }
+  .switcher .opt.active {
+    background: var(--bg-overlay);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    font-weight: 500;
+  }
+  .switcher .opt .pill {
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: white;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+
+  .panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-lg);
+  }
+
+  .panel-head {
+    display: flex; align-items: center; gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-head .logo {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .panel-head .logo img { width: 36px; height: 36px; object-fit: contain; }
+  .panel-head h2 {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: var(--space-md);
+  }
+  .panel-head h2 .pill {
+    font-size: 10px; padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    background: var(--accent); color: white;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .panel-head p { color: var(--text-secondary); margin-top: 4px; max-width: 64ch; font-size: 14px; }
+
+  .step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    align-items: flex-start;
+  }
+  .step .num {
+    width: 24px; height: 24px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: white;
+    font-size: 12px; font-weight: 600;
+    display: grid; place-items: center;
+    margin-top: 2px;
+  }
+  .step.done .num {
+    background: var(--success);
+  }
+  .step.done .num::after { content: '✓'; }
+  .step.done .num .n { display: none; }
+  .step .body { display: flex; flex-direction: column; gap: 6px; }
+  .step .ttl { font-size: 15px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 8px;}
+  .step .ttl .auto-pill {
+    font-size: 10px; padding: 2px 7px;
+    background: var(--success-subtle); color: var(--success);
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .step .ttl .guided-pill {
+    font-size: 10px; padding: 2px 7px;
+    background: var(--warning-subtle); color: oklch(0.5 0.18 60);
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .step .helper { font-size: 13px; color: var(--text-secondary); }
+  .step .control input[type=text],
+  .step .control input[type=password] {
+    font: inherit;
+    font-size: 14px;
+    padding: 10px 14px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    width: 100%;
+    margin-top: 6px;
+  }
+  .step .control input:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle);
+  }
+  .step .control { display: flex; flex-direction: column; gap: 4px; }
+  .step .auto-msg {
+    margin-top: 8px;
+    background: var(--success-subtle);
+    color: var(--success);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    margin-top: 6px;
+  }
+
+  .panel-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+  }
+  .panel-foot .left {
+    font-size: 13px; color: var(--text-secondary);
+    display: flex; align-items: flex-start; gap: 8px;
+    max-width: 56ch;
+  }
+  .panel-foot .left i { color: var(--success); margin-top: 3px; flex-shrink: 0; }
+
+  /* MCP-specific */
+  .one-clicks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+  .one-click {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .one-click:hover { border-color: var(--accent); background: var(--bg-elevated); }
+  .one-click .left {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 500;
+  }
+  .one-click .left img { width: 18px; height: 18px; object-fit: contain; }
+  .one-click .add { color: var(--accent); font-size: 13px; font-weight: 500; }
+
+  .mcp-config-block {
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-top: 6px;
+    overflow-x: auto;
+    position: relative;
+  }
+  .mcp-config-block .copy {
+    position: absolute; top: 8px; right: 10px;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+  }
+  .mcp-config-block .key { color: var(--accent); }
+  .mcp-config-block .str { color: oklch(0.5 0.15 155); }
+
+  .tool-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;
+  }
+  .tool-row .tool {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    padding: 3px 8px;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+  }
+
+  .panel.faded {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      Watcher
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" href="05-agents.html"><i class="ph ph-robot"></i> Agents <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">1</span></a>
+      <a class="nav-item" href="01-catalog.html"><i class="ph ph-radio"></i> Catalog</a>
+      <a class="nav-item" href="03-my-watchers.html"><i class="ph ph-binoculars"></i> My watchers <span style="margin-left:auto;font-size:12px;color:var(--text-tertiary)">3</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-pulse"></i> Activity</a>
+      <a class="nav-item" href="#"><i class="ph ph-gear-six"></i> Settings</a>
+    </nav>
+    <div class="user-chip">
+      <span class="avatar"></span>
+      <div>
+        <div style="color:var(--text-primary);font-weight:500">Carla</div>
+        <div style="font-size:12px">carla@example.com</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="crumbs">
+      <a href="05-agents.html">Agents</a>
+      <i class="ph ph-caret-right" style="font-size:11px"></i>
+      <span style="color:var(--text-secondary)">Connect a new agent</span>
+    </div>
+
+    <div class="page-head">
+      <div>
+        <h1>Connect a new agent</h1>
+        <p>Pick how this agent will exist. All setup happens here — no CLI, no copy-pasting tokens between tabs.</p>
+      </div>
+    </div>
+
+    <div class="switcher">
+      <span class="opt active" data-panel="virtuals" onclick="pickPanel('virtuals')">
+        <img src="logos/virtuals.svg"> Virtuals EconomyOS <span class="pill">Recommended</span>
+      </span>
+      <span class="opt" data-panel="mcp" onclick="pickPanel('mcp')">
+        <img src="logos/mcp.png"> MCP
+      </span>
+    </div>
+
+    <!-- Virtuals panel -->
+    <div class="panel" data-panel="virtuals">
+      <div class="panel-head">
+        <div class="logo"><img src="logos/virtuals.svg"></div>
+        <div>
+          <h2>Virtuals EconomyOS <span class="pill">Recommended</span></h2>
+          <p>Spin up an agent with its own wallet, virtual card, inbox, and Claude as the brain. The agent autonomously transacts in the real world when watchers fire.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">1</span></div>
+        <div class="body">
+          <div class="ttl">Name your agent</div>
+          <div class="helper">You'll see this name everywhere. Keep it short.</div>
+          <div class="control"><input type="text" placeholder="Carla's trip planner"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">2</span></div>
+        <div class="body">
+          <div class="ttl">Connect Claude as the brain</div>
+          <div class="helper">Paste your Anthropic API key. We store it encrypted, scoped to this agent.</div>
+          <div class="control"><input type="password" placeholder="sk-ant-•••••••••••••••••" style="font-family:'Geist Mono',monospace;font-size:13px"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">3</span></div>
+        <div class="body">
+          <div class="ttl">Provision wallet + inbox <span class="auto-pill">Automatic</span></div>
+          <div class="helper">We call the EconomyOS SDK to create an on-chain wallet and a dedicated email inbox for this agent. You hold the keys.</div>
+          <div class="auto-msg">
+            <i class="ph ph-check-circle"></i>
+            Will create: wallet (you custody), inbox @watcher.agent — takes about 2 seconds.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">4</span></div>
+        <div class="body">
+          <div class="ttl">Set up the virtual card <span class="guided-pill">~5 min, once</span></div>
+          <div class="helper">EconomyOS walks you through a guided card setup (signup → profile → payment method → spend limit). After this, every watcher fire pays autonomously. You only do this once, ever.</div>
+          <div class="auto-msg" style="background:var(--warning-subtle);color:oklch(0.5 0.18 60)">
+            <i class="ph ph-arrow-square-out"></i>
+            Opens the EconomyOS card flow in a side panel — stays inside Watcher, no new tab.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">5</span></div>
+        <div class="body">
+          <div class="ttl">Max spending per fire</div>
+          <div class="helper">Hard ceiling. The agent can never spend more than this on a single fire, no matter what. Scope (which sources, which actions) is set per watcher.</div>
+          <div class="control" style="max-width:240px">
+            <input type="text" value="$400">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-foot">
+        <div class="left">
+          <i class="ph ph-shield-check"></i>
+          <span>Your keys never leave your device. Spend caps are signed on-chain by you, enforced by the network. After the card flow, every fire is autonomous — that's the bounty.</span>
+        </div>
+        <button class="primary">Connect agent <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- MCP panel -->
+    <div class="panel" data-panel="mcp" style="display:none">
+      <div class="panel-head">
+        <div class="logo"><img src="logos/mcp.png"></div>
+        <div>
+          <h2>Connect via MCP</h2>
+          <p>Already have an agent in Claude, Cursor, Codex, or Cloudflare Agents? Add Watcher as an MCP server with one click. No CLI, no config files to edit by hand.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">1</span></div>
+        <div class="body">
+          <div class="ttl">Pick where your agent lives</div>
+          <div class="helper">We'll auto-add Watcher to the right config file. If your host isn't here, copy the config block below.</div>
+          <div class="one-clicks-grid" style="margin-top:8px">
+            <div class="one-click">
+              <span class="left"><img src="logos/claude.svg"> Claude Desktop</span>
+              <span class="add">Add &nbsp;<i class="ph ph-plus" style="font-size:11px"></i></span>
+            </div>
+            <div class="one-click">
+              <span class="left"><img src="https://cdn.simpleicons.org/cursor/000000"> Cursor</span>
+              <span class="add">Add &nbsp;<i class="ph ph-plus" style="font-size:11px"></i></span>
+            </div>
+            <div class="one-click">
+              <span class="left"><img src="https://cdn.simpleicons.org/openai/412991"> Codex</span>
+              <span class="add">Add &nbsp;<i class="ph ph-plus" style="font-size:11px"></i></span>
+            </div>
+            <div class="one-click">
+              <span class="left"><img src="https://cdn.simpleicons.org/cloudflare/F38020"> Cloudflare Agents</span>
+              <span class="add">Add &nbsp;<i class="ph ph-plus" style="font-size:11px"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">2</span></div>
+        <div class="body">
+          <div class="ttl">Or copy the config <span class="auto-pill">Manual</span></div>
+          <div class="helper">For any other MCP host. Paste this into your <code style="font-family:'Geist Mono',monospace;font-size:12px;background:var(--bg-elevated);padding:1px 5px;border-radius:4px">mcp.json</code>.</div>
+          <div class="mcp-config-block">
+            <span class="copy"><i class="ph ph-copy"></i> Copy</span>
+<span class="key">"watcher"</span>: {
+  <span class="key">"command"</span>: <span class="str">"npx"</span>,
+  <span class="key">"args"</span>: [<span class="str">"-y"</span>, <span class="str">"@watcher/mcp-server"</span>],
+  <span class="key">"env"</span>: { <span class="key">"WATCHER_TOKEN"</span>: <span class="str">"wch_••••••••••••••"</span> }
+}
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">3</span></div>
+        <div class="body">
+          <div class="ttl">Tools your agent gets</div>
+          <div class="helper">Once connected, your agent sees these as MCP tools. Call them like any other tool.</div>
+          <div class="tool-row">
+            <span class="tool">subscribe_fires</span>
+            <span class="tool">get_fire</span>
+            <span class="tool">mark_handled</span>
+            <span class="tool">list_watchers</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span class="n">4</span></div>
+        <div class="body">
+          <div class="ttl">Test the connection</div>
+          <div class="helper">Click below — we send a sample fire to your agent and show you what it received.</div>
+          <div style="margin-top:6px">
+            <button class="secondary"><i class="ph ph-flask"></i> Send a test fire</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-foot">
+        <div class="left">
+          <i class="ph ph-info" style="color:var(--accent)"></i>
+          <span>Your existing agent provides its own wallet and brain. Watcher is just the eyes — we deliver fires, your agent decides what to do.</span>
+        </div>
+        <button class="primary">Save MCP connection <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+
+  </main>
+</div>
+<script>
+  function pickPanel(name) {
+    document.querySelectorAll('.switcher .opt').forEach(el => {
+      el.classList.toggle('active', el.dataset.panel === name);
+    });
+    document.querySelectorAll('.panel[data-panel]').forEach(el => {
+      el.style.display = el.dataset.panel === name ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
