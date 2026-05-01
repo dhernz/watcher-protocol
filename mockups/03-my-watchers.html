@@ -164,8 +164,14 @@
         <h1>My watchers</h1>
         <p>Three signals you've asked us to watch. Two agents you've connected. We'll keep an eye out so they don't have to.</p>
       </div>
-      <a href="01-catalog.html" style="text-decoration:none"><button class="primary"><i class="ph ph-plus"></i>&nbsp; Add watcher</button></a>
+      <div style="display:flex;gap:8px">
+        <button id="demo-fire-btn" class="primary" style="background:var(--success);font-size:14px"><i class="ph ph-lightning"></i>&nbsp; Fire demo</button>
+        <a href="01-catalog.html" style="text-decoration:none"><button class="primary"><i class="ph ph-plus"></i>&nbsp; Add watcher</button></a>
+      </div>
     </div>
+
+    <!-- LIVE DEMO STATUS PANEL — visible only while a fire is in progress / just completed -->
+    <div id="demo-status" style="display:none;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-lg);font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;line-height:1.7"></div>
 
     <div class="stats">
       <div class="stat accent">
@@ -294,7 +300,118 @@
       </div>
     </section>
 
+    <!-- REAL FIRES from the backend, prepended above the canned mockup ones -->
+    <section class="section" id="real-fires-section" style="display:none">
+      <h2>
+        <span>Real fires (from backend) <span style="color:var(--text-tertiary);margin-left:6px" id="real-fires-count">0</span></span>
+      </h2>
+      <div id="real-fires-list"></div>
+    </section>
+
   </main>
 </div>
+
+<script>
+  const API = 'http://localhost:3001';
+
+  async function refreshAgent() {
+    try {
+      const r = await fetch(API + '/api/agent');
+      const a = await r.json();
+      // update spend stat with real wallet info
+      const stats = document.querySelectorAll('.stats .stat');
+      if (stats.length >= 4) {
+        stats[3].querySelector('.value').textContent = '$' + (a.usdcBalance ?? 0).toFixed(2);
+        stats[3].querySelector('.delta').textContent = `wallet ${a.wallet.slice(0,6)}…${a.wallet.slice(-4)} · ${a.usdcBalance.toFixed(2)} USDC + ${a.ethBalance.toFixed(5)} ETH`;
+        stats[3].querySelector('.label').textContent = 'Agent wallet';
+      }
+    } catch (e) { console.warn('agent fetch failed:', e); }
+  }
+
+  async function refreshFires() {
+    try {
+      const r = await fetch(API + '/api/fires');
+      const { fires } = await r.json();
+      if (!fires.length) return;
+      const sec = document.getElementById('real-fires-section');
+      const list = document.getElementById('real-fires-list');
+      const countEl = document.getElementById('real-fires-count');
+      countEl.textContent = fires.length;
+      sec.style.display = '';
+      list.innerHTML = fires.slice(0, 8).map(f => {
+        const success = !!f.txHash;
+        const icon = success ? '<i class="ph ph-check" style="color:var(--success)"></i>'
+                             : '<i class="ph ph-prohibit" style="color:var(--text-tertiary)"></i>';
+        const right = success
+          ? `<span style="color:var(--success)">✓ $${parseFloat(f.amount||0).toFixed(2)} tipped</span>
+             <a href="${f.txUrl}" target="_blank" style="color:var(--text-tertiary);font-family:'Geist Mono',monospace;font-size:11px;text-decoration:none">${f.txHash.slice(0,10)}…${f.txHash.slice(-4)} ↗</a>`
+          : `<span style="color:var(--text-tertiary)">${f.decision || 'pending'}</span>`;
+        return `
+          <div class="row fire" style="margin-bottom:var(--space-sm)">
+            <div class="icon">${icon}</div>
+            <div class="body">
+              <div class="title">@${f.author || '?'} · ${f.prTitle || '(no PR)'}</div>
+              <div class="sub" style="white-space:normal">
+                ${f.t ? new Date(f.t).toLocaleString() : ''} · incident ${f.incidentId} ·
+                <span style="color:var(--text-secondary);font-style:italic">"${(f.reasoning || '').slice(0, 200)}"</span>
+              </div>
+            </div>
+            <div class="right">${right}</div>
+          </div>`;
+      }).join('');
+    } catch (e) { console.warn('fires fetch failed:', e); }
+  }
+
+  function setStatus(html, color) {
+    const el = document.getElementById('demo-status');
+    el.style.display = '';
+    el.style.borderColor = color || 'var(--border)';
+    el.innerHTML = html;
+  }
+
+  document.getElementById('demo-fire-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('demo-fire-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-circle-notch"></i>&nbsp; Firing…';
+
+    setStatus('<b>→</b> Creating PagerDuty incident with a real GitHub fix PR…', 'var(--accent)');
+
+    try {
+      const r = await fetch(API + '/demo/run', { method: 'POST' });
+      const data = await r.json();
+      if (!data.ok) {
+        setStatus('<span style="color:var(--error)">✗ ' + (data.error || 'failed') + '</span>', 'var(--error)');
+        return;
+      }
+      const ev = (name) => data.events.find(e => e.event === name) || {};
+      const start = ev('agent.start');
+      const pr = ev('agent.pr_found');
+      const author = ev('agent.author');
+      const decision = ev('agent.decision');
+      const tx = ev('agent.tx');
+
+      const lines = [
+        `<b>✓ Incident created</b> · <span style="color:var(--text-secondary)">${data.incidentId}</span>`,
+        pr.owner ? `<b>✓ PR detected</b> · <span style="color:var(--accent)">${pr.owner}/${pr.repo}#${pr.n}</span>` : '',
+        author.author ? `<b>✓ Author</b> · @${author.author} <span style="color:var(--text-secondary)">"${author.prTitle}"</span>` : '',
+        decision.action ? `<b>✓ Claude decided</b> · <span style="color:${decision.action==='tip'?'var(--success)':'var(--text-tertiary)'}">${decision.action.toUpperCase()}${decision.amount_usdc?` $${decision.amount_usdc}`:''}</span><br>&nbsp;&nbsp;<span style="color:var(--text-secondary);font-style:italic">"${decision.reasoning}"</span>` : '',
+        tx.hash ? `<b>✓ ON-CHAIN TX</b> · <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:var(--accent)">${tx.hash.slice(0,12)}…${tx.hash.slice(-6)} ↗</a> · paid ${tx.amount} USDC to ${tx.recipient.slice(0,8)}…${tx.recipient.slice(-4)}` : '',
+      ].filter(Boolean).join('<br>');
+      setStatus(lines, 'var(--success)');
+      await refreshFires();
+      await refreshAgent();
+    } catch (e) {
+      setStatus('<span style="color:var(--error)">✗ ' + e.message + '</span>', 'var(--error)');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ph ph-lightning"></i>&nbsp; Fire demo';
+    }
+  });
+
+  refreshAgent();
+  refreshFires();
+  setInterval(refreshFires, 5000);
+</script>
+
 </body>
 </html>
