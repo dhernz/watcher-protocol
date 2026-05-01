@@ -1,14 +1,14 @@
-# awake
+# watcher-protocol
 
-> Watchers keep your agent awake.
+> Event-driven execution layer for agents. It watches signals, turns them into triggers, and lets agents execute automatically.
 
-Eyes for AI agents. **awake** listens for signals from the services you already use, then wakes your agent the moment something changes — so the agent can act before you'd even open your laptop.
+Eyes for AI agents. **Watcher Protocol** listens for signals from the services you already use, then wakes your agent the moment something changes — so the agent can act before you'd even open your laptop.
 
 Built for the talent.app **agents-day** hackathon. Targets the **PagerDuty** + **Virtuals (EconomyOS)** + **Tripadvisor (Viator)** bounties.
 
 ## The pitch
 
-Your agent is as powerful as the information you give it. Agents execute faster than humans, but only if they know *when* to execute. **awake** is the missing trigger layer for the agent economy.
+Your agent is as powerful as the information you give it. Agents execute faster than humans, but only if they know *when* to execute. **Watcher Protocol** is the missing trigger layer for the agent economy.
 
 Three primitives:
 
@@ -25,7 +25,7 @@ Connect agent  →  Add watcher  →  Automate
 A **live demo** that proves the concept end-to-end:
 
 1. PagerDuty incident gets resolved with a linked GitHub PR
-2. **awake** receives the webhook, finds the PR author
+2. **Watcher Protocol** receives the webhook, finds the PR author
 3. Claude (the agent's brain) reasons: *should we tip them? how much?*
 4. The agent autonomously sends USDC on **Base mainnet** from its **Virtuals EconomyOS-provisioned wallet**
 5. A note posts back to the PagerDuty incident with the tx hash
@@ -86,8 +86,8 @@ Where `PXXXXXX` is the PagerDuty incident ID.
 ## Architecture
 
 ```
-PagerDuty                                     awake server
-─────────                                     ────────────
+PagerDuty                                     watcher-protocol
+─────────                                     ────────────────
   incident.resolved
   (webhook v3)        ────────►       POST /webhook/pagerduty
                                               │
